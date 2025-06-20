@@ -8,6 +8,9 @@ import os
 from os import getenv
 import argparse
 from dotenv import load_dotenv
+import wave
+import shutil
+import hashlib
 
 load_dotenv()
 
@@ -42,23 +45,67 @@ def generate_book(input_directory, output, voice, verbose):
     for file in sorted(os.listdir(input_directory)):
         name, ext = os.path.splitext(file)
 
+        final_audio_path = os.path.join(output, name + ".wav")
+
         # skip if the output already exists
-        if os.path.exists(os.path.join(output, name + ".wav")):
-            print(f"Skipping {name}.wav")
+        if os.path.exists(final_audio_path):
+            print(f"Skipping {name}.wav as it already exists.")
             continue
 
         with open(os.path.join(input_directory, file), "r") as f:
             text = f.read()
 
-        wav_chunks = []
+        # Create a temporary directory for this chapter's chunks
+        temp_dir = os.path.join(output, f"temp_{name}")
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_files = []
 
+        print(f"Processing chapter: {name}")
         for i, text_chunk in enumerate(token_splitter.split(text)):
+            chunk_hash = hashlib.sha256(text_chunk.encode("utf-8")).hexdigest()
+            temp_file_path = os.path.join(temp_dir, f"{chunk_hash}.wav")
+
+            if os.path.exists(temp_file_path):
+                if verbose:
+                    print(
+                        f"  - Chunk {i} ({chunk_hash[:7]}...) already exists, skipping generation."
+                    )
+                temp_files.append(temp_file_path)
+                continue
+
+            if verbose:
+                print(f"  - Generating chunk {i} ({chunk_hash[:7]}...)...")
             print(text_chunk)
             wav = model.generate(text_chunk, audio_prompt_path=voice)
-            wav_chunks.append(wav)
 
-        final_wav = torch.cat(wav_chunks, dim=1)
-        ta.save(os.path.join(output, name + ".wav"), final_wav, model.sr)
+            ta.save(temp_file_path, wav, model.sr)
+            temp_files.append(temp_file_path)
+
+        if not temp_files:
+            if verbose:
+                print(f"No audio generated for {name}, skipping.")
+            os.rmdir(temp_dir)
+            continue
+
+        # Combine temporary audio files into one
+        if verbose:
+            print(f"Combining {len(temp_files)} chunks for {name}.wav...")
+
+        with wave.open(final_audio_path, "wb") as wav_out:
+            # Use first file to set parameters
+            with wave.open(temp_files[0], "rb") as wav_in:
+                wav_out.setparams(wav_in.getparams())
+                wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+
+            # Append data from subsequent files
+            for temp_file in temp_files[1:]:
+                with wave.open(temp_file, "rb") as wav_in:
+                    wav_out.writeframes(wav_in.readframes(wav_in.getnframes()))
+
+        print(f"Finished writing {final_audio_path}")
+
+        # Clean up temporary files and directory
+        shutil.rmtree(temp_dir)
 
 
 if __name__ == "__main__":

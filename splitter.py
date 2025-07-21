@@ -1,6 +1,7 @@
 import logging
 import re
-from typing import Callable, Generator, Optional
+from collections.abc import Generator
+from typing import Callable, Optional
 
 # Set up a logger for this module
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

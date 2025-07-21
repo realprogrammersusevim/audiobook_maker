@@ -1,8 +1,9 @@
-import os
 import argparse
-from openai import OpenAI
-from dotenv import load_dotenv
+import os
 from os import getenv
+
+from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
@@ -70,7 +71,7 @@ def process_book_with_llm(book_text, model_name=DEFAULT_MODEL):
         )  # Fallback if empty response
     except Exception as e:
         print(f"  Error interacting with API: {e}")
-        print(f"  Returning original text due to error.")
+        print("  Returning original text due to error.")
         return book_text  # Fallback to original text on error
 
 
@@ -91,7 +92,7 @@ def process_book(input_file, output_dir, model_name):
 
     print(f"Reading book from '{input_file}'...")
     try:
-        with open(input_file, "r", encoding="utf-8") as f:
+        with open(input_file, encoding="utf-8") as f:
             original_content = f.read()
     except Exception as e:
         print(f"  Error reading file '{input_file}': {e}")
@@ -102,7 +103,9 @@ def process_book(input_file, output_dir, model_name):
         return
 
     print("Sending entire book to LLM for cleaning and chapter splitting...")
-    print("(This may take a significant amount of time depending on book length and model speed)")
+    print(
+        "(This may take a significant amount of time depending on book length and model speed)"
+    )
     processed_content = process_book_with_llm(original_content, model_name)
 
     if CHAPTER_SEPARATOR not in processed_content:
@@ -122,10 +125,10 @@ def process_book(input_file, output_dir, model_name):
         for i, chapter_text in enumerate(chapters):
             chapter_text = chapter_text.strip()
             if not chapter_text:
-                print(f"  Skipping empty chapter section {i+1}.")
+                print(f"  Skipping empty chapter section {i + 1}.")
                 continue
 
-            filename = f"{i+1:02d}_chapter.txt"
+            filename = f"{i + 1:02d}_chapter.txt"
             output_filepath = os.path.join(output_dir, filename)
 
             try:

@@ -1,16 +1,17 @@
-from splitter import TextSplitter
+import argparse
+import hashlib
+import os
+import shutil
+import wave
+from os import getenv
 
 import torch
 import torchaudio as ta
-from chatterbox.tts import ChatterboxTTS
 from chatterbox.models.tokenizers import EnTokenizer
-import os
-from os import getenv
-import argparse
+from chatterbox.tts import ChatterboxTTS
 from dotenv import load_dotenv
-import wave
-import shutil
-import hashlib
+
+from splitter import TextSplitter
 
 load_dotenv()
 
@@ -38,7 +39,8 @@ def generate_book(input_directory, output, voice, verbose):
         tokens = tokenizer.text_to_tokens(text)
         return tokens.size()[1]
 
-    token_length_func = lambda text: tokenize(text)
+    def token_length_func(text):
+        return tokenize(text)
 
     token_splitter = TextSplitter(max_chunk_size=200, length_function=token_length_func)
 
@@ -52,7 +54,7 @@ def generate_book(input_directory, output, voice, verbose):
             print(f"Skipping {name}.wav as it already exists.")
             continue
 
-        with open(os.path.join(input_directory, file), "r") as f:
+        with open(os.path.join(input_directory, file)) as f:
             text = f.read()
 
         # Create a temporary directory for this chapter's chunks
@@ -63,7 +65,7 @@ def generate_book(input_directory, output, voice, verbose):
         print(f"Processing chapter: {name}")
         for i, text_chunk in enumerate(token_splitter.split(text)):
             chunk_hash = hashlib.sha256(text_chunk.encode("utf-8")).hexdigest()
-            temp_file_path = os.path.join(temp_dir, f"{chunk_hash}.wav")
+            temp_file_path = os.path.join(temp_dir, f"{i:04d}-{chunk_hash}.wav")
 
             if os.path.exists(temp_file_path):
                 if verbose:
@@ -78,7 +80,7 @@ def generate_book(input_directory, output, voice, verbose):
             print(text_chunk)
             wav = model.generate(text_chunk, audio_prompt_path=voice)
 
-            ta.save(temp_file_path, wav, model.sr)
+            ta.save(temp_file_path, wav, model.sr, encoding="PCM_S", bits_per_sample=16)
             temp_files.append(temp_file_path)
 
         if not temp_files:
@@ -114,8 +116,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "input_directory",
+        nargs="?",
         default="cleaned_chapters",
-        help="Directory with text files for input.",
+        help="Directory with text files for input. Not used with --combine-only.",
     )
     parser.add_argument(
         "-o", "--output", default="audio", help="Directory to output the audio files."

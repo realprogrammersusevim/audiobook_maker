@@ -65,7 +65,7 @@ def generate_book(input_directory, output, voice, verbose):
         print(f"Processing chapter: {name}")
         for i, text_chunk in enumerate(token_splitter.split(text)):
             chunk_hash = hashlib.sha256(text_chunk.encode("utf-8")).hexdigest()
-            temp_file_path = os.path.join(temp_dir, f"{i:04d}-{chunk_hash}.wav")
+            temp_file_path = os.path.join(temp_dir, f"{chunk_hash}.wav")
 
             if os.path.exists(temp_file_path):
                 if verbose:

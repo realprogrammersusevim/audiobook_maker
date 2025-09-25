@@ -1,9 +1,10 @@
 import argparse
 import os
 import re
+
 import ebooklib
-from ebooklib import epub
 from bs4 import BeautifulSoup
+from ebooklib import epub
 
 
 def ensure_valid_utf8(text: str) -> str:
@@ -52,7 +53,9 @@ def process_epub(input_file, output_dir):
         return
 
     # Get chapters from the book (items of type ITEM_DOCUMENT)
-    chapters = [item for item in book.get_items() if item.get_type() == ebooklib.ITEM_DOCUMENT]
+    chapters = [
+        item for item in book.get_items() if item.get_type() == ebooklib.ITEM_DOCUMENT
+    ]
 
     if not chapters:
         print("No chapters found in the ePub file.")
@@ -64,13 +67,15 @@ def process_epub(input_file, output_dir):
         chapter_text = chapter_to_text(chapter_item)
 
         if not chapter_text.strip():
-            print(f"  Skipping empty chapter section {i + 1} ({chapter_item.get_name()}).")
+            print(
+                f"  Skipping empty chapter section {i + 1} ({chapter_item.get_name()})."
+            )
             continue
 
         basename = os.path.basename(chapter_item.get_name())
         base_filename, _ = os.path.splitext(basename)
         # Sanitize filename to remove invalid characters for most OSes
-        sanitized_base_filename = re.sub(r'[<>:"/\\|?*]', '_', base_filename)
+        sanitized_base_filename = re.sub(r'[<>:"/\\|?*]', "_", base_filename)
         filename = f"{i + 1:02d}_{sanitized_base_filename}.txt"
         output_filepath = os.path.join(output_dir, filename)
 

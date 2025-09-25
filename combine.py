@@ -21,6 +21,7 @@ def tokenize(text):
 def token_length_func(text):
     return tokenize(text)
 
+
 token_splitter = TextSplitter(max_chunk_size=200, length_function=token_length_func)
 
 fpaths = []

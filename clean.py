@@ -25,6 +25,7 @@ This text may have been extracted from a PDF or other source and might contain:
 - Lines broken in awkward places.
 - Inconsistent spacing between paragraphs or sentences.
 - Words hyphenated at the end of lines that should be joined.
+- Footnote numbers left in the plain text.
 - Other OCR or extraction artifacts.
 
 Your goal is to:
@@ -36,7 +37,6 @@ Your goal is to:
 6.  Output the ENTIRE book, with each chapter separated by a specific, unique marker on its own line: `{CHAPTER_SEPARATOR}`.
 7.  The text before the first official chapter (like a title page, dedication, or prologue) should be treated as the first block of text.
 8.  Do NOT add any introductory or concluding remarks, titles, or any text that wasn't in the original. Just output the cleaned book text with the chapter separators.
-9.  Maintain the original language and style of the text.
 
 Example output format:
 [Title Page and Dedication text...]

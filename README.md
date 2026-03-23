@@ -20,7 +20,8 @@ independently or skip stages that don't apply to your input.
 
 - Python 3.12
 - ffmpeg (required for `convert.py`)
-- An [OpenRouter](https://openrouter.ai) API key (required for `clean.py`)
+- An API key for any OpenAI-compatible API (required for `clean.py`; works with
+  OpenRouter, OpenAI, local Ollama, etc.)
 - A GPU or Apple Silicon is recommended for audio generation, but CPU works too
 
 ## Setup
@@ -38,8 +39,8 @@ Create a `.env` file in the project root:
 
 ```env
 BASE_URL="https://openrouter.ai/api/v1"
-API_KEY="your-openrouter-api-key"
-DEFAULT_MODEL="google/gemini-2.5-flash-preview"
+API_KEY="api-key-for-openai-compatible-endpoint"
+DEFAULT_MODEL="model-id"
 TOKENIZER="/path/to/chatterbox/tokenizer.json"
 ```
 
@@ -87,8 +88,9 @@ Output files are named `01_chapter_name.txt`, `02_chapter_name.txt`, etc.
 
 ### `clean.py` — LLM text cleaning
 
-Sends a raw text file to an LLM via OpenRouter to clean OCR artifacts, fix
-broken line wrapping, join hyphenated words, and split the book into chapters.
+Sends a raw text file to an LLM via any OpenAI-compatible API to clean OCR
+artifacts, fix broken line wrapping, join hyphenated words, and split the book
+into chapters.
 
 ```
 python clean.py <input.txt> [-o output_dir] [-m model]
@@ -98,7 +100,7 @@ python clean.py <input.txt> [-o output_dir] [-m model]
 | -------------------- | --------------------------- | ---------------------------------- |
 | `input.txt`          | —                           | Path to raw book text              |
 | `-o`, `--output_dir` | `cleaned_chapters/`         | Directory for output chapter files |
-| `-m`, `--model`      | `DEFAULT_MODEL` from `.env` | OpenRouter model ID                |
+| `-m`, `--model`      | `DEFAULT_MODEL` from `.env` | Model ID                           |
 
 Output files are named `01_chapter.txt`, `02_chapter.txt`, etc. If the LLM
 doesn't detect chapter boundaries, the cleaned text is saved as a single

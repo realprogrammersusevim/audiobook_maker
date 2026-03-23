@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", default="audio")
@@ -18,4 +19,4 @@ for file in sorted(os.listdir(args.input)):
     if os.path.exists(dest_path):
         continue
 
-    os.system(f"ffmpeg -i {source_path} {dest_path}")
+    subprocess.run(["ffmpeg", "-i", source_path, dest_path], check=True)

@@ -31,7 +31,7 @@ def generate_book(input_directory, output, voice, verbose):
 
     torch.load = patched_torch_load
 
-    model = ChatterboxTTS.from_pretrained(device="mps")
+    model = ChatterboxTTS.from_pretrained(device=device)
 
     tokenizer = EnTokenizer(getenv("TOKENIZER"))
 

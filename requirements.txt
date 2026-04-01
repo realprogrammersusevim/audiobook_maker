@@ -29,7 +29,7 @@ networkx==3.5
 nodeenv==1.9.1
 numba==0.61.2
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.21.0
 packaging==25.0
 pillow==12.1.1
 platformdirs==4.3.8

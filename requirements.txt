@@ -40,7 +40,7 @@ pycparser==2.22
 python-dotenv==1.1.0
 pyyaml==6.0.2
 regex==2024.11.6
-requests==2.32.4
+requests==2.33.0
 resemble-perth==1.0.1
 s3tokenizer==0.1.7
 safetensors==0.5.3
